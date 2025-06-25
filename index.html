@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArcSight Platform Troubleshooting Guide</title>
+    <meta name="description" content="Comprehensive command reference for ArcSight platform system diagnostics and issue resolution">
+    <meta name="keywords" content="ArcSight, troubleshooting, Kubernetes, kubectl, debugging, system administration">
+    <meta name="author" content="ArcSight Platform Team">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛠️</text></svg>">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="css/styles.css" as="style">
+    <link rel="preload" href="js/main.js" as="script">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🛠️ ArcSight Platform Troubleshooting Guide</h1>
+            <p>Comprehensive command reference for system diagnostics and issue resolution</p>
+            <div class="search-container">
+                <input type="text" class="search-input" id="searchInput" placeholder="Search commands, errors, or descriptions..." autocomplete="off">
+                <div class="search-icon">🔍</div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span>📊</span>
+                    <span id="commandCount">Loading...</span>
+                </div>
+                <div class="stat-item">
+                    <span>📚</span>
+                    <span>13 Categories</span>
+                </div>
+                <div class="stat-item">
+                    <span>🎯</span>
+                    <span>Real-world Solutions</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <nav class="navigation">
+                <h2>📋 Navigation</h2>
+                <div class="nav-grid">
+                    <a href="#emergency" class="nav-card">
+                        <h3>🚨 Emergency Commands</h3>
+                        <p>Critical system failures and immediate recovery</p>
+                    </a>
+                    <a href="#health" class="nav-card">
+                        <h3>❤️ System Health</h3>
+                        <p>Overall system status and component monitoring</p>
+                    </a>
+                    <a href="#auth" class="nav-card">
+                        <h3>🔐 Authentication</h3>
+                        <p>JWT tokens, login issues, and permission problems</p>
+                    </a>
+                    <a href="#pods" class="nav-card">
+                        <h3>🔄 Pod Management</h3>
+                        <p>Pod lifecycle, debugging, and resource management</p>
+                    </a>
+                    <a href="#services" class="nav-card">
+                        <h3>🌐 Services & Network</h3>
+                        <p>Network connectivity and service troubleshooting</p>
+                    </a>
+                    <a href="#logs" class="nav-card">
+                        <h3>📋 Logs & Debugging</h3>
+                        <p>Log analysis, event monitoring, and diagnostics</p>
+                    </a>
+                    <a href="#config" class="nav-card">
+                        <h3>⚙️ Configuration</h3>
+                        <p>ConfigMaps, secrets, and system settings</p>
+                    </a>
+                    <a href="#database" class="nav-card">
+                        <h3>🗄️ Database</h3>
+                        <p>PostgreSQL troubleshooting and performance</p>
+                    </a>
+                    <a href="#ui" class="nav-card">
+                        <h3>🖥️ UI Issues</h3>
+                        <p>Frontend problems, blank pages, and static assets</p>
+                    </a>
+                    <a href="#performance" class="nav-card">
+                        <h3>⚡ Performance</h3>
+                        <p>Resource usage, bottlenecks, and optimization</p>
+                    </a>
+                    <a href="#security" class="nav-card">
+                        <h3>🔒 Security & RBAC</h3>
+                        <p>Permissions, certificates, and access control</p>
+                    </a>
+                    <a href="#recovery" class="nav-card">
+                        <h3>🔧 Recovery</h3>
+                        <p>System recovery and disaster procedures</p>
+                    </a>
+                    <a href="#patterns" class="nav-card">
+                        <h3>📚 Common Patterns</h3>
+                        <p>Frequent issues with step-by-step solutions</p>
+                    </a>
+                </div>
+            </nav>
+
+            <!-- Emergency Commands Section -->
+            <section class="emergency-section" id="emergency">
+                <h2>🚨 Emergency Commands</h2>
+                <p>Use these commands when the system is completely down or unresponsive:</p>
+                
+                <div class="command-group">
+                    <h4>Instant System Overview</h4>
+                    <div class="command">kubectl get nodes && kubectl get pods -n core</div>
+                    <div class="description">Shows cluster nodes and all core pods status in one command</div>
+                    
+                    <div class="command">kubectl get events -n core --sort-by=.metadata.creationTimestamp | tail -20</div>
+                    <div class="description">Shows last 20 system events to understand what went wrong</div>
+                    
+                    <div class="command">./kube-restart.sh</div>
+                    <div class="description">Full ArcSight system restart script</div>
+                    <div class="warning">Causes complete system downtime - use only in emergencies</div>
+                </div>
+
+                <div class="command-group">
+                    <h4>Emergency Diagnostics</h4>
+                    <div class="multi-command"># Quick system triage
+kubectl get pods -n core | grep -v Running
+kubectl get pv | grep -v Bound
+kubectl top nodes
+kubectl get events -n core --field-selector type=Warning</div>
+                    <div class="description">Runs all essential emergency checks at once</div>
+                </div>
+            </section>
+
+            <!-- Content sections will be loaded dynamically -->
+            <div id="sections-container"></div>
+
+            <!-- Quick Commands Section -->
+            <div class="quick-commands">
+                <h3>🚀 Quick Reference Commands</h3>
+                <p>Most frequently used troubleshooting sequences:</p>
+                
+                <div class="quick-grid">
+                    <div class="multi-command"># System Health Quick Check
+kubectl get nodes && kubectl get pods -n core && kubectl get svc -n core</div>
+                    
+                    <div class="multi-command"># Authentication Issues Quick Fix
+kubectl logs -n core $(kubectl get pods -n core | grep cdf-apiserver | awk '{print $1}') | grep -i jwt | tail -10
+kubectl delete pod -n core $(kubectl get pods -n core | grep cdf-apiserver | awk '{print $1}')
+kubectl delete svc -n core suite-conf-svc-arcsight-installer</div>
+                    
+                    <div class="multi-command"># Find and Fix Problem Pods
+kubectl get pods -n core | grep -v Running
+kubectl delete pod $(kubectl get pods -n core | grep -E "(Error|CrashLoopBackOff)" | awk '{print $1}') -n core</div>
+                    
+                    <div class="multi-command"># UI Troubleshooting Sequence
+kubectl get pods -n core | grep -E "(frontend|ui|portal|ingress)"
+curl -k -I https://d1-spv-host05.domain.ent/urest/v1.1/config?updatedOn=DEPLOYED&hasValue=true
+kubectl rollout restart deployment -n core frontend-ingress-controller</div>
+                    
+                    <div class="multi-command"># Emergency System Recovery
+kubectl get events -n core --sort-by=.metadata.creationTimestamp | tail -20
+kubectl get pods -n core | grep -v Running
+./kube-restart.sh</div>
+                </div>
+            </div>
+
+            <!-- Tips and Escalation -->
+            <div class="tip-box">
+                <h4>💡 Expert Troubleshooting Tips</h4>
+                <ul class="tip-list">
+                    <li>Always start with <code>kubectl get pods -n core</code> for instant system overview</li>
+                    <li>Use <code>kubectl logs --previous</code> for crashed pods to see what happened before restart</li>
+                    <li>Check events timeline with timestamps to understand the sequence of failures</li>
+                    <li>Test API endpoints directly with curl to isolate UI from backend issues</li>
+                    <li>Use browser dev tools (F12) to check console errors and network requests</li>
+                    <li>Follow logs with <code>-f</code> flag while reproducing issues</li>
+                    <li>Document your troubleshooting steps - saves time and helps with handoffs</li>
+                    <li>Keep configuration backups before making changes</li>
+                    <li>Follow the data flow: User → Ingress → Service → Pod → Database</li>
+                    <li>Use <code>kubectl describe</code> for detailed resource information</li>
+                </ul>
+            </div>
+
+            <div class="tip-box escalation-box">
+                <h4>🚨 When to Escalate</h4>
+                <ul class="tip-list">
+                    <li>Data corruption or integrity issues detected in the system</li>
+                    <li>Security breaches or unauthorized access attempts</li>
+                    <li>Hardware failures or persistent storage system problems</li>
+                    <li>Issues that return immediately after applying fixes</li>
+                    <li>Unknown error messages not covered in documentation</li>
+                    <li>System performance degraded significantly from baseline</li>
+                    <li>Multiple critical services failing simultaneously</li>
+                    <li>Certificate expiration affecting system security</li>
+                    <li>Database corruption or unrecoverable data loss</li>
+                    <li>Network infrastructure problems outside Kubernetes</li>
+                </ul>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <h3>🛠️ ArcSight Platform Troubleshooting Guide</h3>
+                <p><strong>Dark Theme Edition | Version 4.0</strong></p>
+                <p>Last Updated: June 2025 | Comprehensive Command Reference</p>
+                <p>💡 <strong>Pro Tip:</strong> Use Ctrl+F to search for specific error messages, symptoms, or commands</p>
+                <p>📚 This guide covers 200+ real-world troubleshooting scenarios and solutions</p>
+                <p>🔧 Built for system administrators, DevOps engineers, and support teams</p>
+                <p>
+                    <a href="https://github.com/your-repo/arcsight-troubleshooting-guide" target="_blank" rel="noopener noreferrer">
+                        📖 View on GitHub
+                    </a>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading troubleshooting guide...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
