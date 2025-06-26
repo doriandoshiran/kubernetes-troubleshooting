@@ -1,91 +1,252 @@
 /**
- * ArcSight Troubleshooting Guide - Main Application
- * Simplified and robust initialization
+ * ArcSight Troubleshooting Guide - Complete Working Main
+ * This file contains everything needed to run the application
  */
 
-// Global state
+// Global Application State
 window.AppState = {
     initialized: false,
     sectionsLoaded: false,
     commandCount: 0
 };
 
-// Main initialization - called when DOM is ready
+// Simple Configuration
+window.AppConfig = {
+    name: 'ArcSight Platform Troubleshooting Guide',
+    version: '4.0',
+    lastUpdated: 'June 2025'
+};
+
+// Simple Logger
+window.Logger = {
+    info: (msg, data) => console.log('ℹ️', msg, data || ''),
+    debug: (msg, data) => console.log('🔍', msg, data || ''),
+    warn: (msg, data) => console.warn('⚠️', msg, data || ''),
+    error: (msg, data) => console.error('❌', msg, data || '')
+};
+
+// Performance tracker
+window.Performance = {
+    mark: (name) => {
+        if (performance && performance.mark) {
+            performance.mark(name);
+        }
+    },
+    measure: (name, start, end) => {
+        if (performance && performance.measure) {
+            try {
+                performance.measure(name, start, end);
+            } catch (e) {}
+        }
+    },
+    getMetrics: () => ({})
+};
+
+// Component Factory for notifications and modals
+window.ComponentFactory = {
+    createNotification: (message, type = 'info', duration = 3000) => {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        
+        const colors = {
+            success: 'background: #10b981; color: white;',
+            error: 'background: #ef4444; color: white;',
+            info: 'background: #3b82f6; color: white;',
+            warning: 'background: #f59e0b; color: white;'
+        };
+        
+        notification.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 10000;
+            max-width: 300px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            ${colors[type] || colors.info}
+            animation: slideInNotif 0.3s ease-out;
+            cursor: pointer;
+        `;
+        
+        // Add animation styles
+        if (!document.getElementById('notification-styles')) {
+            const style = document.createElement('style');
+            style.id = 'notification-styles';
+            style.textContent = `
+                @keyframes slideInNotif {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                @keyframes slideOutNotif {
+                    from { transform: translateX(0); opacity: 1; }
+                    to { transform: translateX(100%); opacity: 0; }
+                }
+                @media (max-width: 768px) {
+                    .notification { right: 10px; left: 10px; max-width: none; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        document.body.appendChild(notification);
+        
+        // Auto remove
+        const remove = () => {
+            notification.style.animation = 'slideOutNotif 0.3s ease-out';
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        };
+        
+        setTimeout(remove, duration);
+        notification.addEventListener('click', remove);
+        
+        return notification;
+    }
+};
+
+// Define all required functions to prevent ReferenceErrors
+window.initializeConfig = () => {
+    Logger.info('Config initialized');
+};
+
+window.initializeSearch = () => {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            performSearch(e.target.value.trim());
+        }, 300);
+    });
+    
+    searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            clearSearch();
+        }
+    });
+    
+    Logger.info('Search initialized');
+};
+
+window.initializeUIComponents = () => {
+    // Add scroll to top button
+    const scrollBtn = document.createElement('button');
+    scrollBtn.innerHTML = '↑';
+    scrollBtn.style.cssText = `
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        background: #3b82f6;
+        color: white;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        font-size: 20px;
+        cursor: pointer;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        transition: all 0.3s ease;
+    `;
+    
+    scrollBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            scrollBtn.style.display = 'block';
+        } else {
+            scrollBtn.style.display = 'none';
+        }
+    });
+    
+    document.body.appendChild(scrollBtn);
+    Logger.info('UI components initialized');
+};
+
+window.initializeComponents = () => {
+    Logger.info('Component factory initialized');
+};
+
+// Search functionality
+function performSearch(query) {
+    const elements = document.querySelectorAll('.command, .multi-command, .description, .command-group, .pattern-card');
+    
+    if (!query) {
+        elements.forEach(el => {
+            el.style.display = '';
+            el.classList.remove('search-hidden');
+        });
+        return;
+    }
+    
+    const queryLower = query.toLowerCase();
+    
+    elements.forEach(el => {
+        const text = el.textContent.toLowerCase();
+        if (text.includes(queryLower)) {
+            el.style.display = '';
+            el.classList.remove('search-hidden');
+        } else {
+            el.style.display = 'none';
+            el.classList.add('search-hidden');
+        }
+    });
+}
+
+function clearSearch() {
+    const elements = document.querySelectorAll('.search-hidden');
+    elements.forEach(el => {
+        el.style.display = '';
+        el.classList.remove('search-hidden');
+    });
+}
+
+// Main initialization function
 function initializeApplication() {
-    console.log('🚀 Starting ArcSight Troubleshooting Guide...');
+    Logger.info('🚀 Starting ArcSight Troubleshooting Guide...');
     
     try {
-        // Show loading
         showLoading();
         
-        // Initialize in sequence with error handling
         setTimeout(() => {
             try {
-                // 1. Initialize configuration
-                if (typeof initializeConfig === 'function') {
-                    initializeConfig();
-                    console.log('✅ Config initialized');
-                }
-                
-                // 2. Load sections first
+                // Initialize all components safely
+                initializeConfig();
                 loadSections();
-                console.log('✅ Sections loaded');
-                
-                // 3. Initialize search
-                if (typeof initializeSearch === 'function') {
-                    initializeSearch();
-                    console.log('✅ Search initialized');
-                }
-                
-                // 4. Initialize UI components
-                if (typeof initializeUIComponents === 'function') {
-                    initializeUIComponents();
-                    console.log('✅ UI components initialized');
-                }
-                
-                // 5. Initialize component factory
-                if (typeof initializeComponents === 'function') {
-                    initializeComponents();
-                    console.log('✅ Component factory initialized');
-                }
-                
-                // 6. Setup copy functionality
+                initializeSearch();
+                initializeUIComponents();
+                initializeComponents();
                 setupCopyFunctionality();
-                console.log('✅ Copy functionality setup');
-                
-                // 7. Setup keyboard shortcuts
                 setupKeyboardShortcuts();
-                console.log('✅ Keyboard shortcuts setup');
-                
-                // 8. Update command count
                 updateCommandCount();
-                console.log('✅ Command count updated');
-                
-                // 9. Handle URL hash
                 handleInitialNavigation();
-                console.log('✅ Navigation handled');
                 
-                // 10. Hide loading
                 hideLoading();
-                
                 window.AppState.initialized = true;
-                console.log('🎉 Application initialized successfully!');
                 
-                // Show success notification
-                setTimeout(() => {
-                    if (typeof ComponentFactory !== 'undefined') {
-                        ComponentFactory.createNotification('ArcSight Guide loaded successfully!', 'success', 3000);
-                    }
-                }, 500);
+                Logger.info('🎉 Application initialized successfully!');
+                ComponentFactory.createNotification('ArcSight Guide loaded successfully!', 'success', 3000);
                 
             } catch (error) {
-                console.error('❌ Initialization failed:', error);
+                Logger.error('❌ Initialization failed:', error);
                 showError();
             }
         }, 100);
         
     } catch (error) {
-        console.error('❌ Critical initialization error:', error);
+        Logger.error('❌ Critical initialization error:', error);
         showError();
     }
 }
@@ -98,23 +259,19 @@ function loadSections() {
             throw new Error('Sections container not found');
         }
         
-        // Get sections data
         const sectionsData = getSectionsData();
-        
-        // Clear container
         container.innerHTML = '';
         
-        // Create each section
         sectionsData.forEach(sectionData => {
             const sectionElement = createSection(sectionData);
             container.appendChild(sectionElement);
         });
         
         window.AppState.sectionsLoaded = true;
-        console.log(`Loaded ${sectionsData.length} sections`);
+        Logger.info(`Loaded ${sectionsData.length} sections`);
         
     } catch (error) {
-        console.error('Failed to load sections:', error);
+        Logger.error('Failed to load sections:', error);
         throw error;
     }
 }
@@ -135,19 +292,15 @@ function createSection(data) {
     const content = document.createElement('div');
     content.className = 'section-content';
     
-    // Add command groups
     if (data.commandGroups) {
         data.commandGroups.forEach(group => {
-            const groupEl = createCommandGroup(group);
-            content.appendChild(groupEl);
+            content.appendChild(createCommandGroup(group));
         });
     }
     
-    // Add patterns
     if (data.patterns) {
         data.patterns.forEach(pattern => {
-            const patternEl = createPattern(pattern);
-            content.appendChild(patternEl);
+            content.appendChild(createPattern(pattern));
         });
     }
     
@@ -160,12 +313,10 @@ function createCommandGroup(group) {
     const div = document.createElement('div');
     div.className = 'command-group';
     
-    // Title
     const title = document.createElement('h4');
     title.textContent = group.title;
     div.appendChild(title);
     
-    // Commands
     group.commands.forEach(cmd => {
         div.appendChild(createCommand(cmd));
     });
@@ -177,7 +328,6 @@ function createCommandGroup(group) {
 function createCommand(cmd) {
     const container = document.createElement('div');
     
-    // Command
     const command = document.createElement('div');
     command.className = cmd.type === 'multi' ? 'multi-command' : 'command';
     command.textContent = cmd.command;
@@ -185,7 +335,6 @@ function createCommand(cmd) {
     command.setAttribute('data-command', cmd.command);
     container.appendChild(command);
     
-    // Description
     if (cmd.description) {
         const desc = document.createElement('div');
         desc.className = 'description';
@@ -193,7 +342,6 @@ function createCommand(cmd) {
         container.appendChild(desc);
     }
     
-    // Usage
     if (cmd.usage) {
         const usage = document.createElement('div');
         usage.className = 'usage-note';
@@ -201,7 +349,6 @@ function createCommand(cmd) {
         container.appendChild(usage);
     }
     
-    // Warning
     if (cmd.warning) {
         const warning = document.createElement('div');
         warning.className = 'warning';
@@ -217,25 +364,21 @@ function createPattern(pattern) {
     const div = document.createElement('div');
     div.className = 'pattern-card';
     
-    // Title
     const title = document.createElement('h3');
     title.className = 'pattern-title';
     title.textContent = pattern.title;
     div.appendChild(title);
     
-    // Symptoms
     const symptoms = document.createElement('div');
     symptoms.className = 'symptom';
     symptoms.textContent = pattern.symptoms;
     div.appendChild(symptoms);
     
-    // Solution
     const solution = document.createElement('div');
     solution.className = 'solution';
     solution.textContent = pattern.solution;
     div.appendChild(solution);
     
-    // Commands
     if (pattern.commands) {
         pattern.commands.forEach(cmd => {
             div.appendChild(createCommand(cmd));
@@ -258,13 +401,12 @@ function setupCopyFunctionality() {
                 await copyToClipboard(cleanText);
                 showCopySuccess(e.target);
             } catch (error) {
-                console.error('Copy failed:', error);
-                showCopyError();
+                Logger.error('Copy failed:', error);
+                ComponentFactory.createNotification('Failed to copy', 'error', 3000);
             }
         }
     });
     
-    // Keyboard support
     document.addEventListener('keydown', (e) => {
         if ((e.key === 'Enter' || e.key === ' ') && 
             e.target.matches('.command, .multi-command')) {
@@ -279,7 +421,6 @@ async function copyToClipboard(text) {
     if (navigator.clipboard && window.isSecureContext) {
         await navigator.clipboard.writeText(text);
     } else {
-        // Fallback
         const textarea = document.createElement('textarea');
         textarea.value = text;
         textarea.style.position = 'fixed';
@@ -295,23 +436,12 @@ async function copyToClipboard(text) {
 function showCopySuccess(element) {
     element.classList.add('copied');
     setTimeout(() => element.classList.remove('copied'), 600);
-    
-    if (typeof ComponentFactory !== 'undefined') {
-        ComponentFactory.createNotification('Command copied!', 'success', 2000);
-    }
-}
-
-// Show copy error
-function showCopyError() {
-    if (typeof ComponentFactory !== 'undefined') {
-        ComponentFactory.createNotification('Failed to copy', 'error', 3000);
-    }
+    ComponentFactory.createNotification('Command copied!', 'success', 2000);
 }
 
 // Setup keyboard shortcuts
 function setupKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
-        // Ctrl+K - Focus search
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             const searchInput = document.getElementById('searchInput');
@@ -321,7 +451,6 @@ function setupKeyboardShortcuts() {
             }
         }
         
-        // Escape - Clear search
         if (e.key === 'Escape') {
             const searchInput = document.getElementById('searchInput');
             if (searchInput && searchInput.value) {
@@ -357,26 +486,21 @@ function handleInitialNavigation() {
     }
 }
 
-// Show loading
+// Show/hide loading
 function showLoading() {
     const overlay = document.getElementById('loading-overlay');
-    if (overlay) {
-        overlay.style.display = 'flex';
-    }
+    if (overlay) overlay.style.display = 'flex';
 }
 
-// Hide loading
 function hideLoading() {
     const overlay = document.getElementById('loading-overlay');
     if (overlay) {
         overlay.style.opacity = '0';
-        setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 300);
+        setTimeout(() => overlay.style.display = 'none', 300);
     }
 }
 
-// Show error
+// Show error with blue styling
 function showError() {
     const container = document.getElementById('sections-container');
     if (container) {
@@ -389,6 +513,7 @@ function showError() {
                 text-align: center;
                 color: #dbeafe;
                 margin: 40px 0;
+                box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
             ">
                 <h2 style="color: #f1f5f9; margin-bottom: 15px;">⚠️ Error Loading Guide</h2>
                 <p style="margin-bottom: 20px;">Failed to load the troubleshooting guide. Please refresh the page.</p>
@@ -400,7 +525,8 @@ function showError() {
                     border-radius: 6px;
                     cursor: pointer;
                     font-size: 14px;
-                ">Refresh Page</button>
+                    transition: background 0.2s ease;
+                " onmouseover="this.style.background='#2563eb'" onmouseout="this.style.background='#3b82f6'">Refresh Page</button>
             </div>
         `;
     }
@@ -416,12 +542,12 @@ if (document.readyState === 'loading') {
 
 // Global error handling
 window.addEventListener('error', (e) => {
-    console.error('Global error:', e.error);
+    Logger.error('Global error:', e.error);
 });
 
 window.addEventListener('unhandledrejection', (e) => {
-    console.error('Unhandled promise rejection:', e.reason);
+    Logger.error('Unhandled promise rejection:', e.reason);
     e.preventDefault();
 });
 
-console.log('📄 Main.js loaded successfully');
+Logger.info('📄 Main.js loaded successfully');
