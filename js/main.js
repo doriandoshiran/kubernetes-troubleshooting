@@ -1,219 +1,211 @@
 /**
  * ArcSight Troubleshooting Guide - Main Application
- * Entry point and initialization
+ * Simplified and robust initialization
  */
 
-// Application state
-const AppState = {
+// Global state
+window.AppState = {
     initialized: false,
     sectionsLoaded: false,
     commandCount: 0
 };
 
-// Main initialization function
-async function initializeApplication() {
+// Main initialization - called when DOM is ready
+function initializeApplication() {
+    console.log('🚀 Starting ArcSight Troubleshooting Guide...');
+    
     try {
-        Performance.mark('app-init-start');
-        Logger.info('Starting application initialization...');
+        // Show loading
+        showLoading();
         
-        // Initialize configuration first
-        initializeConfig();
-        
-        // Show loading overlay
-        showLoadingOverlay();
-        
-        // Initialize all components
-        await initializeAllComponents();
-        
-        // Load and render sections
-        await loadSections();
-        
-        // Setup command interactions
-        setupCommandInteractions();
-        
-        // Initialize copy functionality
-        initializeCopyFunctionality();
-        
-        // Initialize keyboard shortcuts
-        initializeKeyboardShortcuts();
-        
-        // Initialize smooth scrolling
-        initializeSmoothScrolling();
-        
-        // Initialize accessibility features
-        initializeAccessibilityFeatures();
-        
-        // Update command count
-        updateCommandCount();
-        
-        // Handle URL hash navigation
-        handleInitialNavigation();
-        
-        // Hide loading overlay
-        hideLoadingOverlay();
-        
-        AppState.initialized = true;
-        
-        Performance.mark('app-init-end');
-        Performance.measure('app-initialization', 'app-init-start', 'app-init-end');
-        
-        Logger.info('Application initialized successfully');
+        // Initialize in sequence with error handling
+        setTimeout(() => {
+            try {
+                // 1. Initialize configuration
+                if (typeof initializeConfig === 'function') {
+                    initializeConfig();
+                    console.log('✅ Config initialized');
+                }
+                
+                // 2. Load sections first
+                loadSections();
+                console.log('✅ Sections loaded');
+                
+                // 3. Initialize search
+                if (typeof initializeSearch === 'function') {
+                    initializeSearch();
+                    console.log('✅ Search initialized');
+                }
+                
+                // 4. Initialize UI components
+                if (typeof initializeUIComponents === 'function') {
+                    initializeUIComponents();
+                    console.log('✅ UI components initialized');
+                }
+                
+                // 5. Initialize component factory
+                if (typeof initializeComponents === 'function') {
+                    initializeComponents();
+                    console.log('✅ Component factory initialized');
+                }
+                
+                // 6. Setup copy functionality
+                setupCopyFunctionality();
+                console.log('✅ Copy functionality setup');
+                
+                // 7. Setup keyboard shortcuts
+                setupKeyboardShortcuts();
+                console.log('✅ Keyboard shortcuts setup');
+                
+                // 8. Update command count
+                updateCommandCount();
+                console.log('✅ Command count updated');
+                
+                // 9. Handle URL hash
+                handleInitialNavigation();
+                console.log('✅ Navigation handled');
+                
+                // 10. Hide loading
+                hideLoading();
+                
+                window.AppState.initialized = true;
+                console.log('🎉 Application initialized successfully!');
+                
+                // Show success notification
+                setTimeout(() => {
+                    if (typeof ComponentFactory !== 'undefined') {
+                        ComponentFactory.createNotification('ArcSight Guide loaded successfully!', 'success', 3000);
+                    }
+                }, 500);
+                
+            } catch (error) {
+                console.error('❌ Initialization failed:', error);
+                showError();
+            }
+        }, 100);
         
     } catch (error) {
-        Logger.error('Failed to initialize application:', error);
-        showErrorMessage('Failed to load the troubleshooting guide. Please refresh the page.');
+        console.error('❌ Critical initialization error:', error);
+        showError();
     }
 }
 
-// Initialize all components with proper error handling
-async function initializeAllComponents() {
-    const initTasks = [
-        { name: 'Search', fn: initializeSearch },
-        { name: 'UI Components', fn: initializeUIComponents },
-        { name: 'Component Factory', fn: window.initializeComponents }
-    ];
-    
-    for (const task of initTasks) {
-        try {
-            if (typeof task.fn === 'function') {
-                await task.fn();
-                Logger.debug(`${task.name} initialized successfully`);
-            } else {
-                Logger.warn(`${task.name} function not available`);
-            }
-        } catch (error) {
-            Logger.error(`Failed to initialize ${task.name}:`, error);
-            // Continue with other initializations
-        }
-    }
-}
-
-// Load and render sections
-async function loadSections() {
+// Load sections from data
+function loadSections() {
     try {
-        Logger.info('Loading sections...');
-        
-        const sectionsData = getSectionsData();
         const container = document.getElementById('sections-container');
-        
         if (!container) {
             throw new Error('Sections container not found');
         }
         
-        // Clear existing content
+        // Get sections data
+        const sectionsData = getSectionsData();
+        
+        // Clear container
         container.innerHTML = '';
         
-        // Render each section
+        // Create each section
         sectionsData.forEach(sectionData => {
-            const sectionElement = createSectionElement(sectionData);
+            const sectionElement = createSection(sectionData);
             container.appendChild(sectionElement);
         });
         
-        AppState.sectionsLoaded = true;
-        Logger.info(`${sectionsData.length} sections loaded successfully`);
+        window.AppState.sectionsLoaded = true;
+        console.log(`Loaded ${sectionsData.length} sections`);
         
     } catch (error) {
-        Logger.error('Failed to load sections:', error);
+        console.error('Failed to load sections:', error);
         throw error;
     }
 }
 
 // Create section element
-function createSectionElement(sectionData) {
+function createSection(data) {
     const section = document.createElement('section');
     section.className = 'section';
-    section.id = sectionData.id;
+    section.id = data.id;
     
-    // Section header
+    // Header
     const header = document.createElement('div');
     header.className = 'section-header';
-    
-    const title = document.createElement('h2');
-    title.className = 'section-title';
-    title.textContent = sectionData.title;
-    
-    header.appendChild(title);
+    header.innerHTML = `<h2 class="section-title">${data.title}</h2>`;
     section.appendChild(header);
     
-    // Section content
+    // Content
     const content = document.createElement('div');
     content.className = 'section-content';
     
-    // Render command groups or patterns
-    if (sectionData.commandGroups) {
-        sectionData.commandGroups.forEach(group => {
-            const groupElement = createCommandGroupElement(group);
-            content.appendChild(groupElement);
+    // Add command groups
+    if (data.commandGroups) {
+        data.commandGroups.forEach(group => {
+            const groupEl = createCommandGroup(group);
+            content.appendChild(groupEl);
         });
     }
     
-    if (sectionData.patterns) {
-        sectionData.patterns.forEach(pattern => {
-            const patternElement = createPatternElement(pattern);
-            content.appendChild(patternElement);
+    // Add patterns
+    if (data.patterns) {
+        data.patterns.forEach(pattern => {
+            const patternEl = createPattern(pattern);
+            content.appendChild(patternEl);
         });
     }
     
     section.appendChild(content);
-    
     return section;
 }
 
-// Create command group element
-function createCommandGroupElement(groupData) {
-    const group = document.createElement('div');
-    group.className = 'command-group';
+// Create command group
+function createCommandGroup(group) {
+    const div = document.createElement('div');
+    div.className = 'command-group';
     
-    // Group title
+    // Title
     const title = document.createElement('h4');
-    title.textContent = groupData.title;
-    group.appendChild(title);
+    title.textContent = group.title;
+    div.appendChild(title);
     
     // Commands
-    groupData.commands.forEach(commandData => {
-        const commandContainer = createCommandElement(commandData);
-        group.appendChild(commandContainer);
+    group.commands.forEach(cmd => {
+        div.appendChild(createCommand(cmd));
     });
     
-    return group;
+    return div;
 }
 
 // Create command element
-function createCommandElement(commandData) {
+function createCommand(cmd) {
     const container = document.createElement('div');
     
-    // Command element
+    // Command
     const command = document.createElement('div');
-    command.className = commandData.type === 'multi' ? 'multi-command' : 'command';
-    command.textContent = commandData.command;
+    command.className = cmd.type === 'multi' ? 'multi-command' : 'command';
+    command.textContent = cmd.command;
     command.setAttribute('tabindex', '0');
-    command.setAttribute('role', 'button');
-    command.setAttribute('aria-label', 'Click to copy command to clipboard');
-    command.dataset.command = commandData.command;
-    
+    command.setAttribute('data-command', cmd.command);
     container.appendChild(command);
     
     // Description
-    if (commandData.description) {
+    if (cmd.description) {
         const desc = document.createElement('div');
         desc.className = 'description';
-        desc.textContent = commandData.description;
+        desc.textContent = cmd.description;
         container.appendChild(desc);
     }
     
-    // Usage note
-    if (commandData.usage) {
+    // Usage
+    if (cmd.usage) {
         const usage = document.createElement('div');
         usage.className = 'usage-note';
-        usage.textContent = commandData.usage;
+        usage.textContent = cmd.usage;
         container.appendChild(usage);
     }
     
     // Warning
-    if (commandData.warning) {
+    if (cmd.warning) {
         const warning = document.createElement('div');
         warning.className = 'warning';
-        warning.textContent = commandData.warning;
+        warning.textContent = cmd.warning;
         container.appendChild(warning);
     }
     
@@ -221,198 +213,135 @@ function createCommandElement(commandData) {
 }
 
 // Create pattern element
-function createPatternElement(patternData) {
-    const pattern = document.createElement('div');
-    pattern.className = 'pattern-card';
+function createPattern(pattern) {
+    const div = document.createElement('div');
+    div.className = 'pattern-card';
     
-    // Pattern title
+    // Title
     const title = document.createElement('h3');
     title.className = 'pattern-title';
-    title.textContent = patternData.title;
-    pattern.appendChild(title);
+    title.textContent = pattern.title;
+    div.appendChild(title);
     
     // Symptoms
     const symptoms = document.createElement('div');
     symptoms.className = 'symptom';
-    symptoms.textContent = patternData.symptoms;
-    pattern.appendChild(symptoms);
+    symptoms.textContent = pattern.symptoms;
+    div.appendChild(symptoms);
     
     // Solution
     const solution = document.createElement('div');
     solution.className = 'solution';
-    solution.textContent = patternData.solution;
-    pattern.appendChild(solution);
+    solution.textContent = pattern.solution;
+    div.appendChild(solution);
     
     // Commands
-    if (patternData.commands) {
-        patternData.commands.forEach(commandData => {
-            const commandElement = createCommandElement(commandData);
-            pattern.appendChild(commandElement);
+    if (pattern.commands) {
+        pattern.commands.forEach(cmd => {
+            div.appendChild(createCommand(cmd));
         });
     }
     
-    return pattern;
+    return div;
 }
 
-// Setup command interactions
-function setupCommandInteractions() {
-    // Handle command clicks for copying
-    document.addEventListener('click', async (event) => {
-        const target = event.target;
-        
-        if (target.matches('.command, .multi-command')) {
-            event.preventDefault();
+// Setup copy functionality
+function setupCopyFunctionality() {
+    document.addEventListener('click', async (e) => {
+        if (e.target.matches('.command, .multi-command')) {
+            e.preventDefault();
             
-            const commandText = target.dataset.command || target.textContent.replace(/^\$ /, '');
+            const commandText = e.target.dataset.command || e.target.textContent;
+            const cleanText = commandText.replace(/^\$ /, '').trim();
             
             try {
-                await copyCommandToClipboard(commandText, target);
+                await copyToClipboard(cleanText);
+                showCopySuccess(e.target);
             } catch (error) {
-                Logger.error('Failed to copy command:', error);
-                showErrorNotification('Failed to copy command to clipboard');
+                console.error('Copy failed:', error);
+                showCopyError();
             }
         }
     });
     
-    // Handle keyboard interactions
-    document.addEventListener('keydown', (event) => {
-        if (event.target.matches('.command, .multi-command')) {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                event.target.click();
-            }
+    // Keyboard support
+    document.addEventListener('keydown', (e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && 
+            e.target.matches('.command, .multi-command')) {
+            e.preventDefault();
+            e.target.click();
         }
     });
 }
 
-// Initialize copy functionality
-function initializeCopyFunctionality() {
-    Logger.debug('Copy functionality initialized');
-}
-
-// Copy command to clipboard
-async function copyCommandToClipboard(commandText, element) {
-    try {
-        // Clean command text
-        const cleanText = commandText.replace(/^\$ /, '').trim();
-        
-        // Copy to clipboard
-        if (navigator.clipboard && window.isSecureContext) {
-            await navigator.clipboard.writeText(cleanText);
-        } else {
-            // Fallback method
-            const textArea = document.createElement('textarea');
-            textArea.value = cleanText;
-            textArea.style.position = 'fixed';
-            textArea.style.left = '-999999px';
-            textArea.style.top = '-999999px';
-            
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            
-            try {
-                document.execCommand('copy');
-            } finally {
-                document.body.removeChild(textArea);
-            }
-        }
-        
-        // Visual feedback
-        showCopyAnimation(element);
-        showSuccessNotification('Command copied to clipboard!');
-        
-        Logger.debug('Command copied:', cleanText.substring(0, 50) + '...');
-        
-    } catch (error) {
-        Logger.error('Copy failed:', error);
-        throw error;
+// Copy to clipboard
+async function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+    } else {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
     }
 }
 
-// Show copy animation
-function showCopyAnimation(element) {
+// Show copy success
+function showCopySuccess(element) {
     element.classList.add('copied');
-    setTimeout(() => {
-        element.classList.remove('copied');
-    }, 600);
+    setTimeout(() => element.classList.remove('copied'), 600);
+    
+    if (typeof ComponentFactory !== 'undefined') {
+        ComponentFactory.createNotification('Command copied!', 'success', 2000);
+    }
 }
 
-// Initialize keyboard shortcuts
-function initializeKeyboardShortcuts() {
-    document.addEventListener('keydown', (event) => {
+// Show copy error
+function showCopyError() {
+    if (typeof ComponentFactory !== 'undefined') {
+        ComponentFactory.createNotification('Failed to copy', 'error', 3000);
+    }
+}
+
+// Setup keyboard shortcuts
+function setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
         // Ctrl+K - Focus search
-        if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
-            event.preventDefault();
-            focusSearch();
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
         }
         
         // Escape - Clear search
-        if (event.key === 'Escape') {
-            clearSearch();
-        }
-        
-        // Ctrl+/ - Show help
-        if ((event.ctrlKey || event.metaKey) && event.key === '/') {
-            event.preventDefault();
-            showKeyboardHelp();
-        }
-    });
-    
-    Logger.debug('Keyboard shortcuts initialized');
-}
-
-// Initialize smooth scrolling
-function initializeSmoothScrolling() {
-    // Handle navigation link clicks
-    document.addEventListener('click', (event) => {
-        const target = event.target.closest('a[href^="#"]');
-        if (target) {
-            event.preventDefault();
-            const targetId = target.getAttribute('href').substring(1);
-            const targetElement = document.getElementById(targetId);
-            
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: AppConfig.accessibility.reducedMotion ? 'auto' : 'smooth',
-                    block: 'start'
-                });
+        if (e.key === 'Escape') {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && searchInput.value) {
+                searchInput.value = '';
+                searchInput.dispatchEvent(new Event('input'));
+                searchInput.blur();
             }
         }
     });
-    
-    Logger.debug('Smooth scrolling initialized');
-}
-
-// Initialize accessibility features
-function initializeAccessibilityFeatures() {
-    // Add skip link functionality
-    const skipLink = document.querySelector('.skip-link, a[href="#main-content"]');
-    if (skipLink) {
-        skipLink.addEventListener('click', (event) => {
-            event.preventDefault();
-            const mainContent = document.querySelector('.main-content');
-            if (mainContent) {
-                mainContent.focus();
-                mainContent.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
-    }
-    
-    Logger.debug('Accessibility features initialized');
 }
 
 // Update command count
 function updateCommandCount() {
     const commands = document.querySelectorAll('.command, .multi-command');
-    AppState.commandCount = commands.length;
+    window.AppState.commandCount = commands.length;
     
     const countElement = document.getElementById('commandCount');
     if (countElement) {
-        countElement.textContent = `${AppState.commandCount} Commands`;
+        countElement.textContent = `${commands.length} Commands`;
     }
-    
-    Logger.debug(`Command count updated: ${AppState.commandCount}`);
 }
 
 // Handle initial navigation
@@ -420,27 +349,24 @@ function handleInitialNavigation() {
     const hash = window.location.hash.substring(1);
     if (hash) {
         setTimeout(() => {
-            const targetElement = document.getElementById(hash);
-            if (targetElement) {
-                targetElement.scrollIntoView({
-                    behavior: AppConfig.accessibility.reducedMotion ? 'auto' : 'smooth',
-                    block: 'start'
-                });
+            const element = document.getElementById(hash);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
             }
-        }, 500);
+        }, 1000);
     }
 }
 
-// Show loading overlay
-function showLoadingOverlay() {
+// Show loading
+function showLoading() {
     const overlay = document.getElementById('loading-overlay');
     if (overlay) {
         overlay.style.display = 'flex';
     }
 }
 
-// Hide loading overlay
-function hideLoadingOverlay() {
+// Hide loading
+function hideLoading() {
     const overlay = document.getElementById('loading-overlay');
     if (overlay) {
         overlay.style.opacity = '0';
@@ -450,42 +376,24 @@ function hideLoadingOverlay() {
     }
 }
 
-// Show success notification
-function showSuccessNotification(message) {
-    if (typeof ComponentFactory !== 'undefined' && ComponentFactory.createNotification) {
-        ComponentFactory.createNotification(message, 'success', 2000);
-    } else {
-        console.log(message);
-    }
-}
-
-// Show error notification
-function showErrorNotification(message) {
-    if (typeof ComponentFactory !== 'undefined' && ComponentFactory.createNotification) {
-        ComponentFactory.createNotification(message, 'error', 4000);
-    } else {
-        console.error(message);
-    }
-}
-
-// Show error message
-function showErrorMessage(message) {
+// Show error
+function showError() {
     const container = document.getElementById('sections-container');
     if (container) {
         container.innerHTML = `
             <div class="error-message" style="
-                background: #7f1d1d;
-                border: 2px solid #dc2626;
+                background: linear-gradient(135deg, #1e40af 0%, #3730a3 100%);
+                border: 2px solid #3b82f6;
                 border-radius: 12px;
                 padding: 30px;
                 text-align: center;
-                color: #fecaca;
+                color: #dbeafe;
                 margin: 40px 0;
             ">
-                <h2 style="color: #fef2f2; margin-bottom: 15px;">⚠️ Error Loading Guide</h2>
-                <p style="margin-bottom: 20px;">${message}</p>
+                <h2 style="color: #f1f5f9; margin-bottom: 15px;">⚠️ Error Loading Guide</h2>
+                <p style="margin-bottom: 20px;">Failed to load the troubleshooting guide. Please refresh the page.</p>
                 <button onclick="location.reload()" style="
-                    background: #dc2626;
+                    background: #3b82f6;
                     color: white;
                     border: none;
                     padding: 10px 20px;
@@ -496,30 +404,24 @@ function showErrorMessage(message) {
             </div>
         `;
     }
-    
-    hideLoadingOverlay();
+    hideLoading();
 }
 
-// DOM Content Loaded event handler
-document.addEventListener('DOMContentLoaded', () => {
-    Logger.info('DOM content loaded, starting initialization...');
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApplication);
+} else {
     initializeApplication();
+}
+
+// Global error handling
+window.addEventListener('error', (e) => {
+    console.error('Global error:', e.error);
 });
 
-// Handle page errors
-window.addEventListener('error', (event) => {
-    Logger.error('Global error caught:', event.error);
-    showErrorNotification('An unexpected error occurred');
+window.addEventListener('unhandledrejection', (e) => {
+    console.error('Unhandled promise rejection:', e.reason);
+    e.preventDefault();
 });
 
-// Handle unhandled promise rejections
-window.addEventListener('unhandledrejection', (event) => {
-    Logger.error('Unhandled promise rejection:', event.reason);
-    showErrorNotification('An unexpected error occurred');
-    event.preventDefault();
-});
-
-// Export main functions
-window.AppState = AppState;
-window.initializeApplication = initializeApplication;
-window.copyCommandToClipboard = copyCommandToClipboard;
+console.log('📄 Main.js loaded successfully');
