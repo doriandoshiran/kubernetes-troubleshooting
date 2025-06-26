@@ -27,6 +27,9 @@ function initializeSearch() {
     // Setup search results UI
     setupSearchResultsUI();
     
+    // Initialize keyboard navigation
+    setupSearchKeyboardNavigation();
+    
     console.log('Search functionality initialized');
 }
 
@@ -471,12 +474,6 @@ function addSearchStyles() {
             margin-bottom: 0;
         }
         
-        .search-result-highlight {
-            background: rgba(59, 130, 246, 0.1) !important;
-            border: 1px solid #3b82f6 !important;
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
-        }
-        
         @keyframes slideInFromRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -569,40 +566,6 @@ function focusFirstResult() {
     }
 }
 
-// Advanced search features
-const AdvancedSearch = {
-    // Search by category
-    searchByCategory(category) {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.value = `category:${category}`;
-            handleSearch(`category:${category}`);
-        }
-    },
-    
-    // Search by command type
-    searchByType(type) {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput) {
-            searchInput.value = `type:${type}`;
-            handleSearch(`type:${type}`);
-        }
-    },
-    
-    // Get search suggestions
-    getSuggestions(query) {
-        const suggestions = [
-            'jwt token', 'pod restart', '403 error', 'blank page',
-            'database connection', 'ingress', 'logs', 'authentication',
-            'crashloopbackoff', 'configuration', 'performance', 'recovery'
-        ];
-        
-        return suggestions.filter(suggestion => 
-            suggestion.toLowerCase().includes(query.toLowerCase())
-        );
-    }
-};
-
 // Search keyboard navigation
 function setupSearchKeyboardNavigation() {
     let currentFocusIndex = -1;
@@ -640,18 +603,21 @@ function setupSearchKeyboardNavigation() {
     });
 }
 
-// Initialize search keyboard navigation
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', setupSearchKeyboardNavigation);
-} else {
-    setupSearchKeyboardNavigation();
-}
-
 // Export search functionality
 window.SearchFunctionality = {
     SearchState,
     initializeSearch,
     handleSearch,
     clearSearch,
-    AdvancedSearch
+    focusSearch: () => {
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+        }
+    }
 };
+
+// Make functions available globally
+window.initializeSearch = initializeSearch;
+window.clearSearch = clearSearch;
