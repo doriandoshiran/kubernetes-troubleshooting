@@ -1,5 +1,6 @@
 /* ==========================================
    ArcSight Troubleshooting Guide - Main Styles
+   Updated with Blue Theme (No Red)
    ========================================== */
 
 /* Reset and Base Styles */
@@ -190,7 +191,7 @@ body {
     line-height: 1.4;
 }
 
-/* Emergency Section */
+/* Emergency Section - Blue Theme */
 .emergency-section {
     background: linear-gradient(135deg, #1e40af 0%, #3730a3 100%);
     border: 2px solid #3b82f6;
@@ -209,12 +210,12 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="warning" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 0 20 L 20 0 M -5 5 L 5 -5 M 15 25 L 25 15" stroke="rgba(255,255,255,0.03)" stroke-width="2"/></pattern></defs><rect width="100" height="100" fill="url(%23warning)"/></svg>');
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="warning" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 0 20 L 20 0 M -5 5 L 5 -5 M 15 25 L 25 15" stroke="rgba(255,255,255,0.05)" stroke-width="2"/></pattern></defs><rect width="100" height="100" fill="url(%23warning)"/></svg>');
     opacity: 0.3;
 }
 
 .emergency-section h2 {
-    color: #fef2f2;
+    color: #dbeafe;
     font-size: 1.8em;
     margin-bottom: 15px;
     display: flex;
@@ -225,7 +226,7 @@ body {
 }
 
 .emergency-section p {
-    color: #fecaca;
+    color: #bfdbfe;
     margin-bottom: 20px;
     font-size: 1.1em;
     position: relative;
@@ -372,15 +373,15 @@ body {
 /* Emergency Section Commands */
 .emergency-section .command,
 .emergency-section .multi-command {
-    background: rgba(0,0,0,0.3);
-    border-color: rgba(239, 68, 68, 0.5);
-    color: #fecaca;
+    background: rgba(30, 41, 59, 0.8);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: #e2e8f0;
 }
 
 .emergency-section .command:hover,
 .emergency-section .multi-command:hover {
-    background: rgba(0,0,0,0.5);
-    border-color: #ef4444;
+    background: rgba(30, 41, 59, 0.9);
+    border-color: #3b82f6;
 }
 
 /* Description Boxes */
@@ -407,12 +408,12 @@ body {
 }
 
 .warning {
-    background: #7f1d1d;
-    border-left: 4px solid #ef4444;
+    background: #1e40af;
+    border-left: 4px solid #3b82f6;
     padding: 12px 18px;
     margin: 8px 0;
     border-radius: 0 6px 6px 0;
-    color: #fca5a5;
+    color: #bfdbfe;
     font-size: 14px;
     line-height: 1.5;
 }
@@ -459,13 +460,13 @@ body {
 }
 
 .escalation-box {
-    background: #7f1d1d;
-    border-color: #ef4444;
-    color: #fca5a5;
+    background: #1e40af;
+    border-color: #3b82f6;
+    color: #bfdbfe;
 }
 
 .escalation-box h4 {
-    color: #fecaca;
+    color: #dbeafe;
 }
 
 .escalation-box .tip-list li::before {
@@ -492,12 +493,12 @@ body {
 }
 
 .symptom {
-    background: #7f1d1d;
-    border-left: 4px solid #ef4444;
+    background: #1e40af;
+    border-left: 4px solid #3b82f6;
     padding: 10px 15px;
     margin: 10px 0;
     border-radius: 0 4px 4px 0;
-    color: #fca5a5;
+    color: #bfdbfe;
     font-size: 14px;
     line-height: 1.5;
 }
@@ -666,9 +667,9 @@ body {
 }
 
 @keyframes copyFlashEmergency {
-    0% { background: rgba(0,0,0,0.3); }
+    0% { background: rgba(30, 41, 59, 0.8); }
     50% { background: #10b981; }
-    100% { background: rgba(0,0,0,0.3); }
+    100% { background: rgba(30, 41, 59, 0.8); }
 }
 
 /* Search Highlighting */
@@ -747,6 +748,27 @@ html {
     color: #f1f5f9;
 }
 
+/* Error Message Styling (Blue Theme) */
+.error-message {
+    background: linear-gradient(135deg, #1e40af 0%, #3730a3 100%) !important;
+    border: 2px solid #3b82f6 !important;
+    color: #dbeafe !important;
+    box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+}
+
+.error-message h2 {
+    color: #f1f5f9 !important;
+}
+
+.error-message button {
+    background: #3b82f6 !important;
+    transition: background 0.2s ease;
+}
+
+.error-message button:hover {
+    background: #2563eb !important;
+}
+
 /* Print Styles */
 @media print {
     body {
@@ -782,9 +804,9 @@ html {
     }
     
     .emergency-section {
-        background: #ffebee !important;
+        background: #e3f2fd !important;
         color: black !important;
-        border: 2px solid #f44336 !important;
+        border: 2px solid #2196f3 !important;
     }
     
     .search-container,
@@ -812,9 +834,9 @@ html {
     }
     
     .warning {
-        background: #fef2f2 !important;
-        color: #991b1b !important;
-        border-left: 4px solid #f44336 !important;
+        background: #e3f2fd !important;
+        color: #0d47a1 !important;
+        border-left: 4px solid #2196f3 !important;
     }
     
     .pattern-card,
