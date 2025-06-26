@@ -688,11 +688,7 @@ const TroubleshootingComponents = {
     // Create a search result highlight
     createSearchHighlight: (element, query) => {
         const text = element.textContent;
-        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\        return new Promise(resolve => {
-            setTimeout(() => {
-                element.style.height = '';
-                element.style.overflow = '';
-                resolve')})`, 'gi');
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
         
         if (regex.test(text)) {
             const highlightedHTML = text.replace(regex, '<mark class="search-highlight">$1</mark>');
@@ -755,8 +751,7 @@ const TroubleshootingComponents = {
 
 // Initialize component system
 function initializeComponents() {
-    Logger.info('Initializing component system');
-    Performance.mark('components-init-start');
+    console.log('Initializing component system');
     
     // Add global component styles
     addComponentStyles();
@@ -764,10 +759,7 @@ function initializeComponents() {
     // Initialize component event listeners
     setupComponentEventListeners();
     
-    Performance.mark('components-init-end');
-    Performance.measure('components-initialization', 'components-init-start', 'components-init-end');
-    
-    Logger.info('Component system initialized successfully');
+    console.log('Component system initialized successfully');
 }
 
 // Add global component styles
@@ -945,7 +937,7 @@ function handleButtonAction(action, button) {
             }
             break;
         default:
-            Logger.warn(`Unknown button action: ${action}`);
+            console.warn(`Unknown button action: ${action}`);
     }
 }
 
@@ -976,11 +968,11 @@ async function copyToClipboard(text) {
         }
         
         ComponentFactory.createNotification('Copied to clipboard!', 'success', 2000);
-        Logger.debug('Text copied to clipboard:', text.substring(0, 50) + '...');
+        console.log('Text copied to clipboard:', text.substring(0, 50) + '...');
         
     } catch (error) {
         ComponentFactory.createNotification('Failed to copy to clipboard', 'error', 3000);
-        Logger.error('Failed to copy to clipboard:', error);
+        console.error('Failed to copy to clipboard:', error);
     }
 }
 
