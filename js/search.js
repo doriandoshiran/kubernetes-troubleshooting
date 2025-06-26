@@ -146,7 +146,6 @@ function getSearchableElements() {
 // Get searchable text from an element
 function getElementSearchText(element) {
     // Get text content but exclude certain child elements
-    const excludeSelectors = ['.command::after', '.multi-command::after'];
     let text = element.textContent || '';
     
     // Clean up the text
@@ -176,23 +175,6 @@ function calculateRelevanceScore(text, queryWords) {
             score += 1;
         }
     });
-    
-    // Boost score for certain element types
-    const element = arguments[2]; // Third argument if passed
-    if (element) {
-        const type = getElementType(element);
-        switch (type) {
-            case 'command':
-                score *= 1.5; // Commands are more important
-                break;
-            case 'title':
-                score *= 1.3; // Titles are important
-                break;
-            case 'description':
-                score *= 1.1; // Descriptions are somewhat important
-                break;
-        }
-    }
     
     return score;
 }
@@ -336,8 +318,7 @@ function highlightTextInElement(element, searchTerm) {
 
 // Escape regex special characters
 function escapeRegex(string) {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\    const selectors = [
-        '.command-group',');
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 // Clear all highlights
